@@ -1,9 +1,8 @@
-from collections.abc import Iterator
 from contextlib import contextmanager
 from socket import AF_INET, SOCK_DGRAM, socket
 from threading import Thread
 from traceback import print_exc
-from typing import List
+from typing import Iterator, List
 
 from yellowbox import YellowService
 

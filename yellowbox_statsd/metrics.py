@@ -1,10 +1,27 @@
 from __future__ import annotations
 
 import re
-from collections.abc import ItemsView, Iterable, KeysView, Mapping, Set, ValuesView
 from dataclasses import dataclass
 from itertools import chain, product
-from typing import Any, ClassVar, Dict, FrozenSet, List, Optional, Tuple, Type, TypeVar, Union, overload
+from typing import (
+    Any,
+    ClassVar,
+    Dict,
+    FrozenSet,
+    ItemsView,
+    Iterable,
+    KeysView,
+    List,
+    Mapping,
+    Optional,
+    Set,
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+    ValuesView,
+    overload,
+)
 
 
 class MetricTags(FrozenSet[str]):
