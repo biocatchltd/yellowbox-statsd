@@ -12,16 +12,10 @@ yellowbox = { version = ">=0.7.0" }
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.267"
 pytest = "*"
-pytest-asyncio = "*"
 pytest-cov = "*"
 mypy = ">=1"
 black = "^23.3.0"
-statsd = "^4.0.1"
 datadog = "^0.45.0"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 # https://beta.ruff.rs/docs/rules/
