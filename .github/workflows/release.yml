@@ -22,9 +22,6 @@ jobs:
         python-version: '3.11'
     - name: Install dependencies
       run: poetry update
-    - name: Install dependencies
-      run: |
-        sh scripts/install.sh
     - name: Assert Version Correctness
       run: |
         TOML_VER=$(poetry version | awk -F' ' '{ print $2 }')
