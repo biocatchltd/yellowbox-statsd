@@ -1,6 +1,8 @@
 from time import sleep
 
 from datadog.dogstatsd import DogStatsd
+from yellowbox.containers import create_and_pull, removing
+from yellowbox.utils import docker_host_name
 
 from yellowbox_statsd import StatsdService
 
@@ -137,3 +139,17 @@ def test_set():
             dogstatsd.set("test.counter", value=30, tags=["tag1:b", "tag3"])
             sleep(0.1)
         assert capture.set("testns.test.counter").filter(tag1="a").unique() == {10, 3}
+
+
+def test_from_container(docker_client):
+    with StatsdService().start() as statsd, statsd.capture() as capture:
+        container = create_and_pull(
+            docker_client,
+            "debian:stable-slim",
+            f'''bash -c "echo -n 'mymet:1|c' >> /dev/udp/{docker_host_name}/{statsd.port}"''',
+        )
+        container.start()
+        with removing(container):
+            container.wait()
+        sleep(0.1)
+    assert capture.count("mymet").total() == 1
