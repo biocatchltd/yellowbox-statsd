@@ -1,8 +1,11 @@
 from time import sleep
+from unittest.mock import MagicMock
 
 from datadog.dogstatsd import DogStatsd
+from yellowbox.containers import create_and_pull, removing
 
 from yellowbox_statsd import StatsdService
+from yellowbox_statsd.metrics import Metric, MetricTags
 
 
 def test_startup():
@@ -20,6 +23,7 @@ def test_send_metrics():
         assert capture.count("testns.test.counter").filter(tag1="a").total() == 4
         assert capture.count("testns.test.counter").filter_not("tag2").total() == 3
         assert capture.count("testns.test.counter").filter_not(tag1="a").total() == 0
+        assert set(capture.count("testns.test.counter").tags()) == {"tag1:a", "tag2", "tag3"}
 
 
 def test_send_metrics_many_clients():
@@ -40,6 +44,7 @@ def test_send_metrics_many_clients():
     assert split.keys() == {"a", "b"}
     assert split["a"].total() == 5
     assert split["b"].total() == 3
+    assert set(capture.count("testns.test.counter").tag_values("tag1")) == {"a", "b"}
 
 
 def test_repeat_split_metrics():
@@ -137,3 +142,59 @@ def test_set():
             dogstatsd.set("test.counter", value=30, tags=["tag1:b", "tag3"])
             sleep(0.1)
         assert capture.set("testns.test.counter").filter(tag1="a").unique() == {10, 3}
+
+
+def test_from_container(docker_client):
+    with StatsdService().start() as statsd, statsd.capture() as capture:
+        container = create_and_pull(
+            docker_client,
+            "debian:stable-slim",
+            f'''bash -c "echo -n 'mymet:1|c' >> /dev/udp/{statsd.container_host()}/{statsd.port}"''',
+        )
+        container.start()
+        with removing(container):
+            container.wait()
+        sleep(0.1)
+    assert capture.count("mymet").total() == 1
+
+
+def test_idle(capsys):
+    with StatsdService().start() as statsd, statsd.capture() as capture:
+        sleep(2)
+    assert capsys.readouterr() == ("", "")
+    assert capture.get_count("mymet").total() == 0
+    assert capture.get_gauge("mymet").last() == 0
+    assert not capture.get_histogram("mymet")
+    assert not capture.get_timing("mymet")
+    assert not capture.get_distribution("mymet")
+    assert capture.get_set("mymet").unique() == set()
+
+
+def test_dgram_callback():
+    cb = MagicMock()
+    with StatsdService().start() as statsd:
+        statsd.add_datagram_callback(cb)
+        dogstatsd = DogStatsd(host="localhost", port=statsd.port, namespace="testns")
+        dogstatsd.increment("test.counter", tags=["tag1:a", "tag2"])
+        sleep(0.1)
+        cb.assert_called_once_with(b"testns.test.counter:1|c|#tag1:a,tag2\n")
+        statsd.remove_datagram_callback(cb)
+        dogstatsd.increment("test.counter", tags=["tag1:a", "tag2"])
+        sleep(0.1)
+        assert cb.call_count == 1
+
+
+def test_message_callback():
+    cb = MagicMock()
+    with StatsdService().start() as statsd:
+        statsd.add_metric_callback(cb)
+        dogstatsd = DogStatsd(host="localhost", port=statsd.port, namespace="testns")
+        dogstatsd.increment("test.counter", tags=["tag1:a", "tag2"])
+        sleep(0.1)
+        cb.assert_called_once_with(
+            Metric("testns.test.counter", ["1"], "c", None, MetricTags(["tag1:a", "tag2"]), None, None)
+        )
+        statsd.remove_metric_callback(cb)
+        dogstatsd.increment("test.counter", tags=["tag1:a", "tag2"])
+        sleep(0.1)
+        assert cb.call_count == 1

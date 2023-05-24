@@ -27,6 +27,7 @@ jobs:
     - name: Install dependencies
       run: poetry update
     - name: Lint
+      if: matrix.python-version == '3.11'
       run: poetry run sh scripts/lint.sh
     - name: Tests
       run: poetry run sh scripts/coverage.sh

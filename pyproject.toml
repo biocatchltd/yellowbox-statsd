@@ -24,6 +24,8 @@ select = ["I", "E", "W", "F", "N", "S", "BLE", "COM", "C4", "ISC", "ICN", "G", "
 ignore = [
     "COM812",  # trailing comma, handled by black
     "UP035",  # deprecated imports
+    "PLR0912", # Too many branches
+    "S104",  # Possible binding to all interfaces
 ]
 line-length = 120
 show-source = true

@@ -123,6 +123,20 @@ Self = TypeVar("Self", bound="CapturedMetrics")
 
 
 class CapturedMetrics(List[CapturedMetric]):
+    def tags(self) -> Iterable[str]:
+        s: Set[str] = set()
+        for m in self:
+            if m.tags is not None:
+                s.update(m.tags)
+        return sorted(s)
+
+    def tag_values(self, tag: str) -> Iterable[str]:
+        s: Set[str] = set()
+        for m in self:
+            if m.tags is not None:
+                s.update(m.tags[tag])
+        return sorted(s)
+
     def filter(
         self: Self, *extra_tags, tags: Union[Iterable[str], Mapping[str, str]] = (), **extra_tags_assigned
     ) -> Self:
@@ -222,20 +236,59 @@ class CapturedMetricsCollection(Dict[Tuple[str, str], CapturedMetrics]):
         m = CapturedMetric.from_metric(metric)
         self[key].append(m)
 
+    def __getitem__(self, key: Tuple[str, str]) -> CapturedMetrics:
+        try:
+            return super().__getitem__(key)
+        except KeyError:
+            if self:
+                raise KeyError(
+                    f"Metric {key[0]} of type {key[1]} not found, available metrics: {sorted(self.keys())}"
+                ) from None
+            else:
+                raise
+
     def count(self, name: str) -> CountCapturedMetric:
         return self[name, "c"]  # type: ignore[return-value]
+
+    def get_count(self, name: str, tags=(), **tags_kwargs) -> CountCapturedMetric:
+        return self.get((name, "c"), CountCapturedMetric()).filter(
+            tags=tags, **tags_kwargs
+        )  # type: ignore[return-value]
 
     def gauge(self, name: str) -> GaugeCapturedMetric:
         return self[name, "g"]  # type: ignore[return-value]
 
+    def get_gauge(self, name: str, tags=(), **tags_kwargs) -> GaugeCapturedMetric:
+        return self.get((name, "g"), GaugeCapturedMetric()).filter(
+            tags=tags, **tags_kwargs
+        )  # type: ignore[return-value]
+
     def histogram(self, name: str) -> HistogramCapturedMetric:
         return self[name, "h"]  # type: ignore[return-value]
+
+    def get_histogram(self, name: str, tags=(), **tags_kwargs) -> HistogramCapturedMetric:
+        return self.get((name, "h"), HistogramCapturedMetric()).filter(
+            tags=tags, **tags_kwargs
+        )  # type: ignore[return-value]
 
     def set(self, name: str) -> SetCapturedMetric:
         return self[name, "s"]  # type: ignore[return-value]
 
+    def get_set(self, name: str, tags=(), **tags_kwargs) -> SetCapturedMetric:
+        return self.get((name, "s"), SetCapturedMetric()).filter(tags=tags, **tags_kwargs)  # type: ignore[return-value]
+
     def timing(self, name: str) -> HistogramCapturedMetric:
         return self[name, "ms"]  # type: ignore[return-value]
 
+    def get_timing(self, name: str, tags=(), **tags_kwargs) -> HistogramCapturedMetric:
+        return self.get((name, "ms"), HistogramCapturedMetric()).filter(
+            tags=tags, **tags_kwargs
+        )  # type: ignore[return-value]
+
     def distribution(self, name: str) -> HistogramCapturedMetric:
         return self[name, "d"]  # type: ignore[return-value]
+
+    def get_distribution(self, name: str, tags=(), **tags_kwargs) -> HistogramCapturedMetric:
+        return self.get((name, "d"), HistogramCapturedMetric()).filter(
+            tags=tags, **tags_kwargs
+        )  # type: ignore[return-value]
