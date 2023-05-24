@@ -259,7 +259,9 @@ class CapturedMetricsCollection(Dict[Tuple[str, str], CapturedMetrics]):
         return self[name, "g"]  # type: ignore[return-value]
 
     def get_gauge(self, name: str, tags=(), **tags_kwargs) -> GaugeCapturedMetric:
-        return self.get((name, "g"), GaugeCapturedMetric).filter(tags=tags, **tags_kwargs)  # type: ignore[return-value]
+        return self.get((name, "g"), GaugeCapturedMetric()).filter(
+            tags=tags, **tags_kwargs
+        )  # type: ignore[return-value]
 
     def histogram(self, name: str) -> HistogramCapturedMetric:
         return self[name, "h"]  # type: ignore[return-value]

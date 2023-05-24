@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import platform
+import subprocess
 from collections.abc import Callable
 from contextlib import contextmanager
 from socket import AF_INET, SOCK_DGRAM, socket, timeout
@@ -8,6 +10,7 @@ from traceback import print_exc
 from typing import Any, Iterator, List, Set
 
 from yellowbox import YellowService
+from yellowbox.utils import docker_host_name
 
 from yellowbox_statsd.metrics import CapturedMetricsCollection, Metric
 
@@ -101,3 +104,23 @@ class StatsdService(YellowService):
                     except Exception:  # noqa: BLE001
                         print("unexpected error when calling message callback")  # noqa: T201
                         print_exc()
+
+    def container_host(self):
+        uname = platform.uname().release.lower()
+        if ("microsoft" in uname) and ("wsl2" in uname):
+            # udp mirroring is not supported in wsl2 yet
+            # https://github.com/microsoft/WSL/issues/4825
+            # the inference mechanism here can by bypassed by setting the env var YB_STATSD_CONTAINER_HOST
+
+            try:
+                proc = subprocess.run(
+                    ["/usr/bin/sh", "-c", r'''ip addr show eth0 | grep -oP "(?<=inet\s)\d+(\.\d+){3}"'''],  # noqa: S603
+                    capture_output=True,
+                    check=True,
+                )
+            except Exception:  # noqa: BLE001
+                print("Could not get wsl host name, using default")  # noqa: T201
+                print_exc()
+            else:
+                return proc.stdout.decode("utf-8").strip()
+        return docker_host_name
