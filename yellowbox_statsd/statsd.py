@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Callable
 from contextlib import contextmanager
 from socket import AF_INET, SOCK_DGRAM, socket, timeout
