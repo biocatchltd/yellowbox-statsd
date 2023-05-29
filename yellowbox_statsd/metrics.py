@@ -10,6 +10,7 @@ from typing import (
     FrozenSet,
     ItemsView,
     Iterable,
+    Iterator,
     KeysView,
     List,
     Mapping,
@@ -211,6 +212,28 @@ class GaugeCapturedMetric(CapturedMetrics):
             else:
                 return float(v) + addant
         return addant
+
+    def values(self) -> Iterator[float]:
+        prev = 0.0
+        for m in self:
+            for v in m.values:
+                if v.startswith("+"):
+                    prev += float(v[1:])
+                elif v.startswith("-"):
+                    prev -= float(v[1:])
+                else:
+                    prev = float(v)
+                yield prev
+
+    def min(self, default: Optional[float] = None) -> float:
+        if default is None:
+            return min(self.values())
+        return min(self.values(), default=default)
+
+    def max(self, default: Optional[float] = None) -> float:
+        if default is None:
+            return max(self.values())
+        return max(self.values(), default=default)
 
 
 class SetCapturedMetric(CapturedMetrics):
