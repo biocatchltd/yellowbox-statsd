@@ -1,4 +1,4 @@
-from pytest import mark
+from pytest import mark, raises
 
 from yellowbox_statsd.metrics import (
     CapturedMetric,
@@ -79,6 +79,15 @@ def test_count_capture():
     )
 
     assert cap.total() == 25
+    assert cap.unbunch() == CountCapturedMetric(
+        [
+            mk_metric(["1"], None),
+            mk_metric(["2"], 0.5),
+            mk_metric(["3"], 0.5),
+            mk_metric(["7"], 0.5),
+        ]
+    )
+    assert cap.unbunch().total() == cap.total()
 
 
 def test_histogram_capture():
@@ -98,6 +107,7 @@ def test_histogram_capture():
 def test_gauge_capture():
     cap = GaugeCapturedMetric(
         [
+            mk_metric(["1", "+6"], None),
             mk_metric(["3", "+7.2"], None),
             mk_metric(["-2"], None),
             mk_metric(["+1"], None),
@@ -105,6 +115,9 @@ def test_gauge_capture():
     )
 
     assert cap.last() == 9.2
+    assert list(cap.values()) == [1, 7, 3, 10.2, 8.2, 9.2]
+    assert cap.max() == 10.2
+    assert cap.min() == 1
 
 
 def test_gauge_capture_noinit():
@@ -117,12 +130,22 @@ def test_gauge_capture_noinit():
     )
 
     assert cap.last() == 3.2
+    assert list(cap.values()) == [-3, 4.2, 2.2, 3.2]
+    assert cap.max() == 4.2
+    assert cap.min() == -3
 
 
 def test_gauge_capture_empty():
     cap = GaugeCapturedMetric([])
 
     assert cap.last() == 0.0
+    assert list(cap.values()) == []
+    with raises(ValueError):
+        cap.max()
+    with raises(ValueError):
+        cap.min()
+    assert cap.max(4.2) == 4.2
+    assert cap.min(-3) == -3
 
 
 def test_set_capture():

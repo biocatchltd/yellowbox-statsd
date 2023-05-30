@@ -10,6 +10,7 @@ from typing import (
     FrozenSet,
     ItemsView,
     Iterable,
+    Iterator,
     KeysView,
     List,
     Mapping,
@@ -118,6 +119,13 @@ class CapturedMetric:
     def from_metric(cls, metric: Metric) -> CapturedMetric:
         return cls(metric.values, metric.sample_rate, metric.tags, metric.metric_timestamp, metric.container_id)
 
+    def _replace_values(self, values: List[str]) -> CapturedMetric:
+        return type(self)(values, self.sample_rate, self.tags, self.metric_timestamp, self.container_id)
+
+    def unbunch(self) -> Iterator[CapturedMetric]:
+        for v in self.values:
+            yield self._replace_values([v])
+
 
 Self = TypeVar("Self", bound="CapturedMetrics")
 
@@ -176,6 +184,9 @@ class CapturedMetrics(List[CapturedMetric]):
                 cm.append(metric)
         return ret
 
+    def unbunch(self: Self) -> Self:
+        return type(self)(chain.from_iterable(m.unbunch() for m in self))
+
 
 class CountCapturedMetric(CapturedMetrics):
     def total(self) -> float:
@@ -211,6 +222,28 @@ class GaugeCapturedMetric(CapturedMetrics):
             else:
                 return float(v) + addant
         return addant
+
+    def values(self) -> Iterator[float]:
+        prev = 0.0
+        for m in self:
+            for v in m.values:
+                if v.startswith("+"):
+                    prev += float(v[1:])
+                elif v.startswith("-"):
+                    prev -= float(v[1:])
+                else:
+                    prev = float(v)
+                yield prev
+
+    def min(self, default: Optional[float] = None) -> float:
+        if default is None:
+            return min(self.values())
+        return min(self.values(), default=default)
+
+    def max(self, default: Optional[float] = None) -> float:
+        if default is None:
+            return max(self.values())
+        return max(self.values(), default=default)
 
 
 class SetCapturedMetric(CapturedMetrics):

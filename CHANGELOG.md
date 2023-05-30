@@ -1,4 +1,8 @@
 # Yellowbox Statsd Changelog
+## Next
+### Added
+* `values`, `min`, `max` methods to gauge captures
+* `unbunch` methods to captured metrics
 ## 0.1.1
 ### Added
 * "host" parameter to control the hostname to bind to
