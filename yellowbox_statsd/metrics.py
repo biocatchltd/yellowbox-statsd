@@ -119,6 +119,13 @@ class CapturedMetric:
     def from_metric(cls, metric: Metric) -> CapturedMetric:
         return cls(metric.values, metric.sample_rate, metric.tags, metric.metric_timestamp, metric.container_id)
 
+    def _replace_values(self, values: List[str]) -> CapturedMetric:
+        return type(self)(values, self.sample_rate, self.tags, self.metric_timestamp, self.container_id)
+
+    def unbunch(self) -> Iterator[CapturedMetric]:
+        for v in self.values:
+            yield self._replace_values([v])
+
 
 Self = TypeVar("Self", bound="CapturedMetrics")
 
@@ -176,6 +183,9 @@ class CapturedMetrics(List[CapturedMetric]):
                     cm = ret[key] = type(self)()
                 cm.append(metric)
         return ret
+
+    def unbunch(self: Self) -> Self:
+        return type(self)(chain.from_iterable(m.unbunch() for m in self))
 
 
 class CountCapturedMetric(CapturedMetrics):

@@ -79,6 +79,15 @@ def test_count_capture():
     )
 
     assert cap.total() == 25
+    assert cap.unbunch() == CountCapturedMetric(
+        [
+            mk_metric(["1"], None),
+            mk_metric(["2"], 0.5),
+            mk_metric(["3"], 0.5),
+            mk_metric(["7"], 0.5),
+        ]
+    )
+    assert cap.unbunch().total() == cap.total()
 
 
 def test_histogram_capture():
