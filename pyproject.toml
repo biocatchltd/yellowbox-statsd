@@ -16,6 +16,8 @@ pytest-cov = "*"
 mypy = ">=1"
 black = "^23.3.0"
 datadog = "^0.45.0"
+aiodogstatsd = "^0.16.0.post0"
+pytest-asyncio = "^0.21.0"
 
 [tool.ruff]
 # https://beta.ruff.rs/docs/rules/
