@@ -202,16 +202,26 @@ def test_message_callback():
         assert cb.call_count == 1
 
 
+class MyProtocol(DatagramProtocol):
+    def __init__(self):
+        self.on_lost = get_running_loop().create_future()
+
+    def connection_lost(self, exc: Exception | None) -> None:
+        self.on_lost.set_result(exc)
+        super().connection_lost(exc)
+
+
 async def test_async_send_raw():
     with StatsdService().start() as statsd:
         with statsd.capture() as capture:
             loop = get_running_loop()
-            transport, _ = await loop.create_datagram_endpoint(
-                protocol_factory=DatagramProtocol, remote_addr=("localhost", statsd.port)
+            transport, protocol = await loop.create_datagram_endpoint(
+                protocol_factory=MyProtocol, remote_addr=("localhost", statsd.port)
             )
             transport.sendto(b"testns.test.counter:1:4|c")
             transport.close()
             await asleep(0.1)
+            assert await protocol.on_lost is None
         assert capture.count("testns.test.counter").total() == 5
 
 
