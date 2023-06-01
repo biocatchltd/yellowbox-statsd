@@ -1,6 +1,8 @@
+from asyncio import DatagramProtocol, get_running_loop, sleep as asleep
 from time import sleep
 from unittest.mock import MagicMock
 
+from aiodogstatsd import Client
 from datadog.dogstatsd import DogStatsd
 from yellowbox.containers import create_and_pull, removing
 
@@ -198,3 +200,38 @@ def test_message_callback():
         dogstatsd.increment("test.counter", tags=["tag1:a", "tag2"])
         sleep(0.1)
         assert cb.call_count == 1
+
+
+class MyProtocol(DatagramProtocol):
+    def __init__(self):
+        self.on_lost = get_running_loop().create_future()
+
+    def connection_lost(self, exc) -> None:
+        self.on_lost.set_result(exc)
+        super().connection_lost(exc)
+
+
+async def test_async_send_raw():
+    with StatsdService().start() as statsd:
+        with statsd.capture() as capture:
+            loop = get_running_loop()
+            transport, protocol = await loop.create_datagram_endpoint(
+                protocol_factory=MyProtocol, remote_addr=("127.0.0.1", statsd.port)
+            )
+            transport.sendto(b"testns.test.counter:1:4|c")
+            transport.close()
+            await asleep(0.1)
+            assert await protocol.on_lost is None
+        assert capture.count("testns.test.counter").total() == 5
+
+
+async def test_async_send_metrics():
+    with StatsdService().start() as statsd:
+        with statsd.capture() as capture:
+            client = Client(host="127.0.0.1", port=statsd.port, namespace="testns")
+            await client.connect()
+            client.increment("test.counter")
+            client.increment("test.counter", value=3)
+            await client.close()
+            sleep(0.1)
+        assert capture.count("testns.test.counter").total() == 4
