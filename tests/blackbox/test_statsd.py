@@ -228,7 +228,7 @@ async def test_async_send_raw():
 async def test_async_send_metrics():
     with StatsdService().start() as statsd:
         with statsd.capture() as capture:
-            client = Client(host="localhost", port=statsd.port, namespace="testns")
+            client = Client(host="127.0.0.1", port=statsd.port, namespace="testns")
             await client.connect()
             client.increment("test.counter")
             client.increment("test.counter", value=3)
