@@ -216,7 +216,7 @@ async def test_async_send_raw():
         with statsd.capture() as capture:
             loop = get_running_loop()
             transport, protocol = await loop.create_datagram_endpoint(
-                protocol_factory=MyProtocol, remote_addr=("localhost", statsd.port)
+                protocol_factory=MyProtocol, remote_addr=("127.0.0.1", statsd.port)
             )
             transport.sendto(b"testns.test.counter:1:4|c")
             transport.close()
