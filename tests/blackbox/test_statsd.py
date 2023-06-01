@@ -206,7 +206,7 @@ class MyProtocol(DatagramProtocol):
     def __init__(self):
         self.on_lost = get_running_loop().create_future()
 
-    def connection_lost(self, exc: Exception | None) -> None:
+    def connection_lost(self, exc) -> None:
         self.on_lost.set_result(exc)
         super().connection_lost(exc)
 
