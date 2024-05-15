@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from os import getenv
 import platform
 import subprocess
 from collections.abc import Callable
 from contextlib import contextmanager
+from os import getenv
 from socket import AF_INET, SOCK_DGRAM, socket, timeout
 from threading import Thread
 from traceback import print_exc
