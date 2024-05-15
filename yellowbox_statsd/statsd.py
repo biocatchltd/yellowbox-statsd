@@ -4,6 +4,7 @@ import platform
 import subprocess
 from collections.abc import Callable
 from contextlib import contextmanager
+from os import getenv
 from socket import AF_INET, SOCK_DGRAM, socket, timeout
 from threading import Thread
 from traceback import print_exc
@@ -44,7 +45,6 @@ class StatsdService(YellowService):
         self.should_stop = True
         self.listening_thread.join()
         self.sock.close()
-        return super().stop()
 
     def is_alive(self):
         return self.sock is not None
@@ -107,10 +107,10 @@ class StatsdService(YellowService):
 
     def container_host(self):
         uname = platform.uname().release.lower()
-        if ("microsoft" in uname) and ("wsl2" in uname):
+        if ("microsoft" in uname) and ("wsl2" in uname) and not getenv("YB_STATSD_CONTAINER_HOST"):
             # udp mirroring is not supported in wsl2 yet
             # https://github.com/microsoft/WSL/issues/4825
-            # the inference mechanism here can by bypassed by setting the env var YB_STATSD_CONTAINER_HOST
+            # the inference mechanism here can by bypassed by setting the env var YB_STATSD_CONTAINER_HOST to any value
 
             try:
                 proc = subprocess.run(
