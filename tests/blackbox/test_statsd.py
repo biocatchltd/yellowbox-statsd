@@ -156,7 +156,6 @@ def test_from_container(docker_client):
         container.start()
         with removing(container):
             container.wait()
-            input("READY!")
             sleep(0.1)
     assert capture.count("mymet").total() == 1
 
