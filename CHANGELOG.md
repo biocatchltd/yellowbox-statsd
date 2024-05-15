@@ -1,8 +1,13 @@
 # Yellowbox Statsd Changelog
-## Next
+## 0.1.2
 ### Added
 * `values`, `min`, `max` methods to gauge captures
 * `unbunch` methods to captured metrics
+* support for python 3.12 
+### Fixed
+* correctly check the `YB_STATSD_CONTAINER_HOST` env var
+### Internal
+* CI workflows
 ## 0.1.1
 ### Added
 * "host" parameter to control the hostname to bind to

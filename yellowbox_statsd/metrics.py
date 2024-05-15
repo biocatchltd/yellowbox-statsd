@@ -156,12 +156,10 @@ class CapturedMetrics(List[CapturedMetric]):
         return type(self)(m for m in self if not m.tags_match(*extra_tags, tags=tags, **extra_tags_assigned))
 
     @overload
-    def split(self: Self, tag: str) -> Dict[Optional[str], Self]:
-        ...
+    def split(self: Self, tag: str) -> Dict[Optional[str], Self]: ...
 
     @overload
-    def split(self: Self, tag: Tuple[str, ...]) -> Dict[Tuple[Optional[str], ...], Self]:
-        ...
+    def split(self: Self, tag: Tuple[str, ...]) -> Dict[Tuple[Optional[str], ...], Self]: ...
 
     def split(self: Self, tag: Union[str, Tuple[str, ...]]) -> Dict[Any, Self]:
         if isinstance(tag, str):
@@ -284,25 +282,19 @@ class CapturedMetricsCollection(Dict[Tuple[str, str], CapturedMetrics]):
         return self[name, "c"]  # type: ignore[return-value]
 
     def get_count(self, name: str, tags=(), **tags_kwargs) -> CountCapturedMetric:
-        return self.get((name, "c"), CountCapturedMetric()).filter(
-            tags=tags, **tags_kwargs
-        )  # type: ignore[return-value]
+        return self.get((name, "c"), CountCapturedMetric()).filter(tags=tags, **tags_kwargs)  # type: ignore[return-value]
 
     def gauge(self, name: str) -> GaugeCapturedMetric:
         return self[name, "g"]  # type: ignore[return-value]
 
     def get_gauge(self, name: str, tags=(), **tags_kwargs) -> GaugeCapturedMetric:
-        return self.get((name, "g"), GaugeCapturedMetric()).filter(
-            tags=tags, **tags_kwargs
-        )  # type: ignore[return-value]
+        return self.get((name, "g"), GaugeCapturedMetric()).filter(tags=tags, **tags_kwargs)  # type: ignore[return-value]
 
     def histogram(self, name: str) -> HistogramCapturedMetric:
         return self[name, "h"]  # type: ignore[return-value]
 
     def get_histogram(self, name: str, tags=(), **tags_kwargs) -> HistogramCapturedMetric:
-        return self.get((name, "h"), HistogramCapturedMetric()).filter(
-            tags=tags, **tags_kwargs
-        )  # type: ignore[return-value]
+        return self.get((name, "h"), HistogramCapturedMetric()).filter(tags=tags, **tags_kwargs)  # type: ignore[return-value]
 
     def set(self, name: str) -> SetCapturedMetric:
         return self[name, "s"]  # type: ignore[return-value]
@@ -314,14 +306,10 @@ class CapturedMetricsCollection(Dict[Tuple[str, str], CapturedMetrics]):
         return self[name, "ms"]  # type: ignore[return-value]
 
     def get_timing(self, name: str, tags=(), **tags_kwargs) -> HistogramCapturedMetric:
-        return self.get((name, "ms"), HistogramCapturedMetric()).filter(
-            tags=tags, **tags_kwargs
-        )  # type: ignore[return-value]
+        return self.get((name, "ms"), HistogramCapturedMetric()).filter(tags=tags, **tags_kwargs)  # type: ignore[return-value]
 
     def distribution(self, name: str) -> HistogramCapturedMetric:
         return self[name, "d"]  # type: ignore[return-value]
 
     def get_distribution(self, name: str, tags=(), **tags_kwargs) -> HistogramCapturedMetric:
-        return self.get((name, "d"), HistogramCapturedMetric()).filter(
-            tags=tags, **tags_kwargs
-        )  # type: ignore[return-value]
+        return self.get((name, "d"), HistogramCapturedMetric()).filter(tags=tags, **tags_kwargs)  # type: ignore[return-value]
