@@ -113,8 +113,8 @@ class StatsdService(YellowService):
             # the inference mechanism here can by bypassed by setting the env var YB_STATSD_CONTAINER_HOST to any value
 
             try:
-                proc = subprocess.run(
-                    ["/usr/bin/sh", "-c", r'''ip addr show eth0 | grep -oP "(?<=inet\s)\d+(\.\d+){3}"'''],  # noqa: S603
+                proc = subprocess.run(  # noqa: S603
+                    ["/usr/bin/sh", "-c", r'''ip addr show eth0 | grep -oP "(?<=inet\s)\d+(\.\d+){3}"'''],
                     capture_output=True,
                     check=True,
                 )

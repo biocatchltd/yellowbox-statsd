@@ -60,7 +60,7 @@ DOGSTATSD_PATTERN = re.compile(
     r"(?P<values>(?::[+-]?[0-9][0-9.]*)+)"
     r"\|(?P<type>[a-z]+)"
     r"(?:\|@(?P<sample_rate>[0-9][0-9.]*))?"
-    r"(?:\|\#(?P<tags>[a-zA-Z][\w\-:.]*(?:,[a-zA-Z][\w\-:.]*)*))?"
+    r"(?:\|\#(?P<tags>[a-zA-Z][\w\-:./\\]*(?:,[a-zA-Z][\w\-:./\\]*)*))?"
     r"(?:\|c:(?P<container>[a-z0-9]+))?"
     r"(?:\|T(?P<time>[0-9]+))?",
     re.X,
