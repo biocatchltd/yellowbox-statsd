@@ -15,7 +15,7 @@ from yellowbox_statsd.metrics import (
 @mark.parametrize("values", [["35"], ["654.12"], ["+15"], ["-45.5"], ["0", "+5", "-3"]])
 @mark.parametrize("type", ["c", "ms", "g", "h", "s", "d"])
 @mark.parametrize("sample_rate", [None, 0.5, 1, 2])
-@mark.parametrize("tags", [None, ["tag1:a", "tag2"], ["tag1:a"], ["hi"]])
+@mark.parametrize("tags", [None, ["tag1:a", "tag2"], ["tag1:a"], ["hi"], ["tag1/a", "tag2\\b"]])
 @mark.parametrize("container", [None, "blabla"])
 @mark.parametrize("time", [None, 1234567890])
 def test_parse(name, values, type, sample_rate, tags, container, time):

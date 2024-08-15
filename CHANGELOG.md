@@ -1,4 +1,7 @@
 # Yellowbox Statsd Changelog
+## 0.1.3
+### Fixed
+* slashes are now allowed in metric tags to comply with datadog standards
 ## 0.1.2
 ### Added
 * `values`, `min`, `max` methods to gauge captures
