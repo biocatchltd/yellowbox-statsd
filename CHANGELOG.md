@@ -1,5 +1,7 @@
 # Yellowbox Statsd Changelog
 ## 0.1.4
+### Changed
+* stop supporting python 3.8
 ### Fixed
 * bugfix to support small float values in histograms
 ### Internal

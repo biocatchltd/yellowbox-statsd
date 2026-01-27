@@ -6,7 +6,7 @@ authors = ["Biocatch LTD <serverteam@biocatch.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 yellowbox = { version = ">=0.7.0" }
 
 [tool.poetry.group.dev.dependencies]
