@@ -8,6 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.9"
 yellowbox = { version = ">=0.7.0" }
+typing-extensions = { version = ">=4.0.0", python = "<3.11" }
 
 [tool.poetry.group.dev.dependencies]
 ruff = ">=0.0.267"

@@ -15,7 +15,6 @@ from typing import (
     List,
     Mapping,
     Optional,
-    Self,
     Set,
     Tuple,
     Type,
@@ -23,6 +22,11 @@ from typing import (
     ValuesView,
     overload,
 )
+
+try:
+    from typing import Self
+except ImportError:
+    from typing_extensions import Self
 
 
 class MetricTags(FrozenSet[str]):
