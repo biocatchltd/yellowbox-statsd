@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-import sys
 from dataclasses import dataclass
 from itertools import chain, product
 from typing import (
@@ -24,9 +23,9 @@ from typing import (
     overload,
 )
 
-if sys.version_info >= (3, 11):
+try:
     from typing import Self
-else:
+except ImportError:
     from typing_extensions import Self
 
 
