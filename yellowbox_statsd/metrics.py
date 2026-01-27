@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import sys
 from dataclasses import dataclass
 from itertools import chain, product
 from typing import (
@@ -15,7 +16,6 @@ from typing import (
     List,
     Mapping,
     Optional,
-    Self,
     Set,
     Tuple,
     Type,
@@ -23,6 +23,11 @@ from typing import (
     ValuesView,
     overload,
 )
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    from typing_extensions import Self
 
 
 class MetricTags(FrozenSet[str]):
