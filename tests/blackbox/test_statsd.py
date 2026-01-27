@@ -123,16 +123,17 @@ def test_timing():
 
 
 def test_distribution():
+    small_value = 7.55419999904916e-05
     with StatsdService().start() as statsd:
         with statsd.capture() as capture:
             dogstatsd = DogStatsd(host="localhost", port=statsd.port, namespace="testns")
-            dogstatsd.distribution("test.counter", value=10, tags=["tag1:a", "tag2"])
+            dogstatsd.distribution("test.counter", value=small_value, tags=["tag1:a", "tag2"])
             dogstatsd.distribution("test.counter", value=3, tags=["tag1:a", "tag3"])
             dogstatsd.distribution("test.counter", value=30, tags=["tag1:b", "tag3"])
             sleep(0.1)
-        assert capture.distribution("testns.test.counter").filter(tag1="a").avg() == 13 / 2
-        assert capture.distribution("testns.test.counter").filter(tag1="a").max() == 10
-        assert capture.distribution("testns.test.counter").filter(tag1="a").min() == 3
+        assert capture.distribution("testns.test.counter").filter(tag1="a").avg() == (small_value + 3) / 2
+        assert capture.distribution("testns.test.counter").filter(tag1="a").max() == 3
+        assert capture.distribution("testns.test.counter").filter(tag1="a").min() == small_value
 
 
 def test_set():
