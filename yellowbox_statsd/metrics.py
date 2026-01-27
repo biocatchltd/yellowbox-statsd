@@ -15,10 +15,10 @@ from typing import (
     List,
     Mapping,
     Optional,
-    Self,
     Set,
     Tuple,
     Type,
+    TypeVar,
     Union,
     ValuesView,
     overload,
@@ -57,7 +57,7 @@ class MetricTags(FrozenSet[str]):
 
 DOGSTATSD_PATTERN = re.compile(
     r"(?P<name>[\w.]+)"
-    r"(?P<values>(?::[+-]?[0-9][0-9.]*([eE][+-]?[0-9]+)?)*)"
+    r"(?P<values>(?::[+-]?[0-9][0-9.]*)+)"
     r"\|(?P<type>[a-z]+)"
     r"(?:\|@(?P<sample_rate>[0-9][0-9.]*))?"
     r"(?:\|\#(?P<tags>[a-zA-Z][\w\-:./\\]*(?:,[a-zA-Z][\w\-:./\\]*)*))?"
@@ -125,6 +125,9 @@ class CapturedMetric:
     def unbunch(self) -> Iterator[CapturedMetric]:
         for v in self.values:
             yield self._replace_values([v])
+
+
+Self = TypeVar("Self", bound="CapturedMetrics")
 
 
 class CapturedMetrics(List[CapturedMetric]):

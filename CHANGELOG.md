@@ -1,7 +1,5 @@
 # Yellowbox Statsd Changelog
-## 0.1.4
-### Fixed
-* bugfix to support small float values in histograms
+## NEXT
 ### Internal
 * updated github actions
 ## 0.1.3
