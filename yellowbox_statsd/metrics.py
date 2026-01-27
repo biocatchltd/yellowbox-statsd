@@ -57,7 +57,7 @@ class MetricTags(FrozenSet[str]):
 
 DOGSTATSD_PATTERN = re.compile(
     r"(?P<name>[\w.]+)"
-    r"(?P<values>(?::[+-]?[0-9][0-9.]*([eE][+-]?[0-9]+)?)+)"
+    r"(?P<values>(?::[+-]?[0-9][0-9.]*(?:[eE][+-]?[0-9]+)?)+)"
     r"\|(?P<type>[a-z]+)"
     r"(?:\|@(?P<sample_rate>[0-9][0-9.]*))?"
     r"(?:\|\#(?P<tags>[a-zA-Z][\w\-:./\\]*(?:,[a-zA-Z][\w\-:./\\]*)*))?"
