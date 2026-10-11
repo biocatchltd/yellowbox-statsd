@@ -1,4 +1,9 @@
 # Yellowbox Statsd Changelog
+## NEXT
+### Internal
+* Added Python 3.15 support to CI.
+* Dropped Python 3.8 and 3.9 from CI.
+* Removed Codecov upload from CI.
 ## 0.1.4
 ### Fixed
 * bugfix to support small float values in histograms

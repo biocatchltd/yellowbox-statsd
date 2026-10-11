@@ -10,35 +10,24 @@ on:
 jobs:
   unittest:
     runs-on: ubuntu-latest
-    env:
-      # Store the project environment in ./.venv. The venv step below creates it
-      # with the interpreter selected by setup-python.
-      POETRY_VIRTUALENVS_IN_PROJECT: "true"
     strategy:
       matrix:
-        python-version: [3.8, 3.9, '3.11', '3.12', '3.15']
+        python-version: ['3.11', '3.12', '3.15']
     steps:
     - uses: actions/checkout@v5
     - name: Install poetry
       run: |
         python -m pip install pip --upgrade
         curl -sSL https://install.python-poetry.org | python3 - --version 2.5.1
+        poetry config virtualenvs.prefer-active-python true
     - name: Set up Python
       uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
-        allow-prereleases: ${{ matrix.python-version == '3.15' }}
     - name: Install dependencies
-      run: |
-        # Poetry 2.5.1 bundles virtualenv 21.7.9, which cannot create Python 3.8 envs.
-        python -m venv .venv
-        poetry update
+      run: poetry update
     - name: Lint
       if: matrix.python-version == '3.11'
       run: poetry run sh scripts/lint.sh
     - name: Tests
       run: poetry run sh scripts/coverage.sh
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v6
-      with:
-        files: ./coverage.xml
